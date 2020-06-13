@@ -156,7 +156,7 @@ class GameManager {
 	*/
 	activateGame(delay) {
 		setTimeout(function() {
-			setInterval(this.update.bind(this), 1000/120);
+			setInterval(this.update.bind(this), 1000/30);
 			this.gameActive = true;
 		}.bind(this), delay);
 	}

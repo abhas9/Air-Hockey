@@ -127,45 +127,51 @@
 				// Listen for update data sent from the GameManager
 				socket.on("updateInfo", function(data) {
 					// GameManager tells us which object it's updating in data.object
-					switch (data.object) {
+					let updateInfo = (data) => {
+						switch (data.object) {
 						// add all the sent keys to our userdata
-						case "user":
-							if (data.pos) {
-								user.pos = data.pos;
-							}
-							if (data.side) {
-								side.is = data.side;
-								Object.freeze(side);
-							}
-							if (data.username) {
-								user.username = data.username;
-							}
-							break;
-						case "otherUser":
-							// only update other user if the new data is more recent
-							if (data.time > otherUser.lastTime) {
+							case "user":
 								if (data.pos) {
-									otherUser.pos = data.pos;
+									user.pos = data.pos;
+								}
+								if (data.side) {
+									side.is = data.side;
+									Object.freeze(side);
 								}
 								if (data.username) {
-									otherUser.username = data.username;
+									user.username = data.username;
 								}
-								
-								// update their last updated time to this packet's time
-								otherUser.lastTime = data.time;
-							}
-							break;
-						case "puck":
-							// only update puck if the new data is more recent
-							if (data.time > puck.lastTime) {
-								puck.pos = data.pos;
-								puck.vel = data.vel;
-								
-								// update the puck's updated time to this packet's time
-								puck.lastTime = data.time;
-							}
-							break;
-					}
+								break;
+							case "otherUser":
+								// only update other user if the new data is more recent
+								if (data.time > otherUser.lastTime) {
+									if (data.pos) {
+										otherUser.pos = data.pos;
+									}
+									if (data.username) {
+										otherUser.username = data.username;
+									}
+									
+									// update their last updated time to this packet's time
+									otherUser.lastTime = data.time;
+								}
+								break;
+							case "puck":
+								// only update puck if the new data is more recent
+								if (data.time > puck.lastTime) {
+									puck.pos = data.pos;
+									puck.vel = data.vel;
+									
+									// update the puck's updated time to this packet's time
+									puck.lastTime = data.time;
+								}
+								break;
+						}
+					};
+					setTimeout(() => {
+						updateInfo(data);
+					} , 400);
+					
 				});
 			
 				// Listen for the server telling us someone scored a point
