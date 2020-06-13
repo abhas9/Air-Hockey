@@ -7,6 +7,11 @@
 			* {
 				font-family: 'Roboto', sans-serif;
 			}
+			body {
+				background: #000;
+				color: #fff;
+			}
+
 			
 			h1, p {
 				text-align: center;
@@ -16,12 +21,17 @@
 				border: 1px solid black;
 				background-image: url("../media/background.png");
 				background-size: cover;
+				height: 75vh;
 			}
 			
 			#canvasContainer {
-				width: 100%;
 				text-align: center;
+				width: 100%;
 			}
+			.nocursor {
+				cursor: none;
+			}
+
 		</style>
 		
 		<!-- Load in socket.io -->
@@ -196,7 +206,10 @@
 				});
 				
 				// Listen for the server telling us to begin the game
-				socket.on("beginPlay", update);
+				socket.on("beginPlay", () => {
+					document.body.classList.add('nocursor')
+					update();
+				});
 			}
 			
 			// A helper function for updating positions
@@ -224,8 +237,12 @@
 				// get canvas mouseover callbacks to update paddle position
 				document.addEventListener('mousemove', function(e) {
 					var canvasPos = canvas.getBoundingClientRect();
-					user.pos.x = clamp(e.x - canvasPos.left, (side.is*canvas.width/2) + user.img.width/2, (side.is*canvas.width/2)+canvas.width/2-user.img.width/2);
-					user.pos.y = clamp(e.y - canvasPos.top, user.img.width/2, canvas.height-user.img.height/2);
+					let scale = canvas.getBoundingClientRect().height/parseFloat(canvas.height);
+					let mouseX = e.x/scale;
+					let mouseY = e.y/scale;
+					user.pos.x = clamp(mouseX - canvasPos.left, (side.is*canvas.width/2) + (!side.is + 0)*50   + user.img.width/2, (side.is*canvas.width/2)+canvas.width/2-user.img.width/2 - side.is*50);
+					user.pos.y = clamp(mouseY - canvasPos.top, user.img.width/2 + 50, canvas.height-user.img.height/2-50); // height_padding
+					
 				})
 				
 				// load paddle and puck icons from the server
@@ -261,15 +278,17 @@
 				// draw the scores in the corners
 				ctx.save();
 					// draw the scores on the correct side depending on which side we're playing on
+					ctx.fillStyle = "white"
+					ctx.font = "12pt \"Lucida Console\", Monaco, monospace";
 					if (side.is === 0) {
-						ctx.fillText(user.username + ": " + user.points, 5, 25);
+						ctx.fillText(user.username + ": " + user.points, 10, 25);
 						ctx.textAlign = "end";
-						ctx.fillText(otherUser.points + " :" + otherUser.username, canvas.width - 5, 25);
+						ctx.fillText(otherUser.points + " :" + otherUser.username, canvas.width - 10, 25);
 					}
 					else {
-						ctx.fillText(otherUser.username + ": " + otherUser.points, 5, 25);
+						ctx.fillText(otherUser.username + ": " + otherUser.points, 10, 25);
 						ctx.textAlign = "end";
-						ctx.fillText(user.points + " :" + user.username, canvas.width - 5, 25);
+						ctx.fillText(user.points + " :" + user.username, canvas.width - 10, 25);
 					}
 				ctx.restore();
 				
@@ -278,10 +297,11 @@
 				
 				// draw the current notification from the server
 				if (notification != "") {
-					ctx.save();
-						ctx.font = "36pt Roboto";
+						ctx.save();
+						ctx.font = "50pt \"Lucida Console\", Monaco, monospace";
 						ctx.textAlign = "center"
 						ctx.textBaseline = "middle";
+						ctx.fillStyle = "white"
 						ctx.fillText(notification, canvas.width/2, canvas.height/3);
 					ctx.restore();
 				}
@@ -295,12 +315,12 @@
 			*/
 			function bouncePuck() {
 				// bounce left-right
-				if ((puck.pos.x - puck.radius < 0) || (puck.pos.x + puck.radius > canvas.width)) {
+				if ((puck.pos.x - puck.radius < 50) || (puck.pos.x + puck.radius > canvas.width - 50)) {
 					puck.vel.x *= -1;
 				}
 				
 				// bounce up-down
-				if ((puck.pos.y - puck.radius < 0) || (puck.pos.y + puck.radius > canvas.height)) {
+				if ((puck.pos.y - puck.radius < 50) || (puck.pos.y + puck.radius > canvas.height - 50)) {
 					puck.vel.y *= -1;
 				}
 			}

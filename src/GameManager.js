@@ -110,7 +110,7 @@ class GameManager {
 	
 	
 		//== The game starting sequence
-		this.notifyUsersMultiple(["First to 10 points wins","Game starting in 3...", "2...", "1...", "Go!"], 1000);
+		this.notifyUsersMultiple(["First to 5 points wins","Game starting in 3...", "2...", "1...", "Go!"], 1000);
 		this.activateGame(5000);
 	}
 	
@@ -357,8 +357,9 @@ class GameManager {
 			});
 			
 			// if either player's score is >= 10, they've won
-			if (this.p1.score >= 10 || this.p2.score >= 10) {
-				this.notifyUsers("Game Complete", -1);
+			if (this.p1.score >= 5 || this.p2.score >= 5) {
+				let winner = (this.p1.score > this.p2.score)? this.p1 : this.p2;
+				this.notifyUsers(`Game Complete ${winner.name}`, -1);
 				this.gameComplete = true;
 			}
 			// nobody has won, continue
@@ -375,7 +376,7 @@ class GameManager {
 	*/
 	bouncePuck() {
 		// bounce left-right
-		if ((this.puck.pos.x - this.puck.radius < 0) || (this.puck.pos.x + this.puck.radius > this.gW)) {
+		if ((this.puck.pos.x - this.puck.radius < 50) || (this.puck.pos.x + this.puck.radius > this.gW - 50)) {
 			// only bounce off wall if it's not entering a goal zone
 			if (this.puckInGoalHeight()) {
 				this.puck.vel.x *= -1;
@@ -383,7 +384,7 @@ class GameManager {
 		}
 		
 		// bounce up-down
-		if ((this.puck.pos.y - this.puck.radius < 0) || (this.puck.pos.y + this.puck.radius > this.gH)) {
+		if ((this.puck.pos.y - this.puck.radius < 50) || (this.puck.pos.y + this.puck.radius > this.gH - 50)) {
 			this.puck.vel.y *= -1;
 		}
 	}
